@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1789862520756",
+    "titulo": "Fone Bluetooth TWS",
+    "preco": "89.90",
+    "precoAntigo": "129.90",
+    "imagem": "https://m.media-amazon.com/images/I/51Vcn7E0DWL._AC_UF1000,1000_QL80_.jpg",
+    "plataforma": "shopee",
+    "categoria": "eletronicos",
+    "linkAfiliado": "https://s.shopee.com.br/5LC2gXq8nF"
+  },
+  {
+    "id": "1789702385659",
+    "titulo": "Tênis Esporte Impulse Web Treino Academia E Caminhada ...",
+    "preco": "37.90",
+    "precoAntigo": "87.90",
+    "imagem": "https://http2.mlstatic.com/D_NQ_NP_892418-MLA81384399084_122024-F.jpg",
+    "plataforma": "mercadolivre",
+    "categoria": "Calçados",
+    "linkAfiliado": "https://meli.la/1Bdrvm4"
+  },
+  {
+    "id": "1789617368792",
+    "titulo": "Luminária de Mesa LED Articulada Recarregável",
+    "preco": "34.90",
+    "precoAntigo": "59.90",
+    "imagem": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500&q=80",
+    "plataforma": "shopee",
+    "categoria": "eletronicos",
+    "linkAfiliado": "https://shope.ee/seu_link_afiliado_luminaria"
+  }
+]

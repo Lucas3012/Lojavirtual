@@ -1,0 +1,423 @@
+:root {
+  --shopee-red: #EE4D2D;
+  --shopee-orange: #FF5722;
+  --bg-gray: #F5F5F5;
+  --text-dark: #222222;
+  --text-muted: #757575;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  background-color: var(--bg-gray);
+  color: var(--text-dark);
+  padding-bottom: 60px;
+}
+
+/* Header Estilo Shopee com Título Centralizado */
+.header-shopee {
+  background: linear-gradient(180deg, #F53D2D 0%, #EE4D2D 100%);
+  padding: 10px 12px 14px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.header-top {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.header-menu-btn {
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.header-logo {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.15rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.header-badge {
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: right;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.search-bar-shopee {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 4px;
+  padding: 6px 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.search-bar-shopee input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 0.85rem;
+  color: #333;
+  margin-left: 6px;
+}
+
+/* Banners e Destaques */
+.banner-promo {
+  background: linear-gradient(135deg, #FF5722, #D82B1B);
+  color: white;
+  padding: 12px 16px;
+  margin: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.banner-promo h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.banner-promo p {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+/* Grid de Produtos de 2 Colunas */
+.container {
+  padding: 8px;
+}
+
+.grid-shopee {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+/* Cards no Estilo Exato da Shopee */
+.card-shopee {
+  background: #ffffff;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.card-img-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  background: #fafafa;
+}
+
+.card-img-wrapper img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.badge-desconto {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(255, 212, 36, 0.92);
+  color: #EE4D2D;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-bottom-left-radius: 4px;
+}
+
+.card-body {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #222;
+  line-height: 1.25;
+  height: 2.5em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  margin-bottom: 6px;
+}
+
+.price-tag-shopee {
+  color: var(--shopee-red);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.price-tag-shopee span {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.buttons-platforms {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.btn-platform {
+  flex: 1;
+  padding: 5px 2px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 3px;
+  text-align: center;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.btn-shopee { background-color: #EE4D2D; }
+.btn-ml { background-color: #FFE600; color: #2D3277; }
+.btn-tiktok { background-color: #000000; }
+
+.btn-platform.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.btn-price {
+  font-size: 0.6rem;
+  margin-top: 1px;
+}
+
+/* Sidebar e Overlay */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 260px;
+  height: 100%;
+  background: #fff;
+  z-index: 1001;
+  transition: left 0.3s ease;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+.sidebar.open { left: 0; }
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: none;
+}
+
+.sidebar-overlay.open { display: block; }
+
+.sidebar-header {
+  background: var(--shopee-red);
+  color: #fff;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-item {
+  padding: 14px 16px;
+  color: #333;
+  text-decoration: none;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Botão Flutuante do WhatsApp */
+.whatsapp-float {
+  position: fixed;
+  width: 55px;
+  height: 55px;
+  bottom: 20px;
+  right: 20px;
+  background-color: #25d366;
+  color: #fff;
+  border-radius: 50px;
+  text-align: center;
+  font-size: 30px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.whatsapp-float:active {
+  transform: scale(0.92);
+  background-color: #128c7e;
+}
+
+.whatsapp-float svg {
+  width: 32px;
+  height: 32px;
+  fill: #fff;
+}
+
+/* Barra de Checkout / Carrinho Flutuante no Rodapé */
+.checkout-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.12);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 999;
+  border-top: 1px solid #eee;
+}
+
+.checkout-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkout-total-label {
+  font-size: 0.72rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.checkout-total-price {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--shopee-red);
+}
+
+.btn-checkout-finish {
+  background: linear-gradient(135deg, #FF5722, #EE4D2D);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(238, 77, 45, 0.4);
+}
+
+.btn-add-cart {
+  width: 100%;
+  margin-top: 6px;
+  background: #222;
+  color: #fff;
+  border: none;
+  padding: 6px 0;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* Botões Redondos de Plataformas no Modal de Checkout */
+.checkout-platforms-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 15px;
+  padding-top: 10px;
+}
+
+.btn-circle-platform {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.65rem;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-circle-platform:active {
+  transform: scale(0.92);
+}
+
+.btn-circle-shopee {
+  background: linear-gradient(135deg, #FF5722, #EE4D2D);
+}
+
+.btn-circle-ml {
+  background: linear-gradient(135deg, #FFE600, #F3C600);
+  color: #2D3277;
+}
+
+.btn-circle-tiktok {
+  background: linear-gradient(135deg, #222222, #000000);
+}
+
+.btn-circle-platform.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.btn-circle-icon {
+  font-size: 1.1rem;
+  margin-bottom: 2px;
+}
