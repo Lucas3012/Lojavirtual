@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1790198271957,
+    "titulo": "Jaqueta masculina puffer",
+    "linkShopee": "https://s.shopee.com.br/2gBNhk7CVE",
+    "precoShopee": 79.9,
+    "fotoShopee": "/uploads/img_1790198037650_529.jpg",
+    "linkMercadoLivre": "https://meli.la/2rZ3j7s",
+    "precoMercadoLivre": 68.9,
+    "fotoMercadoLivre": "/uploads/img_1790198152253_723.jpg",
+    "linkTikTok": "https://vt.tiktok.com/ZS9AHqGCpEgTQ-LxKD5/",
+    "precoTikTok": 74.99,
+    "fotoTikTok": "/uploads/img_1790198270097_38.jpg",
+    "imagem": "/uploads/img_1790198037650_529.jpg",
+    "categoria": "geral"
+  },
+  {
+    "id": 1790045188029,
+    "linkShopee": "https://s.shopee.com.br/3qNIGlFVBT",
+    "linkMercadoLivre": "https://meli.la/177WeBL",
+    "linkTikTok": "https://vt.tiktok.com/ZS9AUWvESgnk1-P8dDn/",
+    "titulo": "Massageador elétrico inova",
+    "preco": 80,
+    "precoAntigo": null,
+    "imagem": "/uploads/img_1790045182118_933.jpg",
+    "categoria": "eletrônico",
+    "plataforma": "undefined",
+    "linkAfiliado": "undefined"
+  },
+  {
+    "id": 1790044440774,
+    "linkShopee": "https://s.shopee.com.br/9fL5BiSzwK",
+    "linkMercadoLivre": "https://meli.la/144MWKq",
+    "linkTikTok": "https://vt.tiktok.com/ZS9AUGuc3jMYo-Tkw2i/",
+    "titulo": "Fone de ouvido bluetooth tws",
+    "preco": 30,
+    "precoAntigo": null,
+    "imagem": "https://images.tcdn.com.br/img/img_prod/600280/fone_de_ouvido_sem_fio_tws_bluetooth_5_0_cor_preto_390507_1_ff9f86f68f2e4f8f5999fbdce8f5af6c.jpg",
+    "categoria": "eletrônico"
+  }
+]
