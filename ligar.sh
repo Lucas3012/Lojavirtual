@@ -3,12 +3,12 @@
 echo "🧹 Encerrando processos anteriores do Node..."
 pkill -f node 2>/dev/null || true
 
-echo "🔄 Baixando atualizações do GitHub..."
-git pull origin main
+echo "🔄 Baixando alterações do GitHub..."
+git pull origin main --rebase
 
-echo "📤 Enviando alterações locais para o GitHub..."
+echo "📤 Salvando e enviando alterações locais..."
 git add .
-git commit -m "Auto-update: ajustes do painel admin e edicao de produtos" --allow-empty
+git commit -m "Auto-update: ajustes do sistema" --allow-empty
 git push origin main
 
 echo "🚀 Iniciando servidor Node.js..."
