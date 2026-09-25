@@ -1,24 +1,25 @@
 #!/bin/bash
 
-echo "🧹 A encerrar obrigatoriamente todos os processos do Node.js..."
-pkill -9 -f node 2>/dev/null || true
+echo "🧹 Encerrando apenas o processo do server.js (sem afetar o WhatsApp)..."
+# Procura e encerra apenas o processo que contém 'server.js'
+pkill -9 -f "node server.js" 2>/dev/null || true
 sleep 1
 
-echo "🔄 A baixar alterações do GitHub..."
+echo "🔄 Baixando alterações do GitHub..."
 git pull origin main --rebase
 
-echo "📤 A enviar alterações locais para o GitHub..."
+echo "📤 Enviando alterações locais para o GitHub..."
 git add .
-git commit -m "Auto-update: correção do bot do telegram e rotas" --allow-empty
+git commit -m "Auto-update: ajustes e separação de processos" --allow-empty
 git push origin main
 
-echo "🚀 A iniciar o servidor Node.js..."
+echo "🚀 Iniciando servidor Node.js..."
 node server.js &
 NODE_PID=$!
 
 sleep 3
 
-echo "🌐 A gerar link público na internet..."
+echo "🌐 Gerando link público na internet..."
 echo "----------------------------------------"
 ssh -o StrictHostKeyChecking=no -R lojavirtuallk:80:localhost:3000 serveo.net
 
