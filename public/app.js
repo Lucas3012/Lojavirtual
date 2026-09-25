@@ -1,247 +1,161 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Controle do Menu Lateral
-  const menuToggle = document.getElementById('menu-toggle');
-  const menuClose = document.getElementById('menu-close');
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebar-overlay');
+  let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
 
-  if (menuToggle && sidebar && overlay) {
-    menuToggle.addEventListener('click', () => {
-      sidebar.classList.add('open');
-      overlay.classList.add('open');
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true
+  });
+
+  const modalCarrinho = document.getElementById('modal-carrinho');
+  const btnAbrirCarrinho = document.getElementById('btn-abrir-carrinho');
+  const btnFecharCarrinho = document.getElementById('btn-fechar-carrinho');
+  const btnLimparCarrinho = document.getElementById('btn-limpar-carrinho');
+
+  // Abrir / Fechar Modal
+  if (btnAbrirCarrinho) {
+    btnAbrirCarrinho.addEventListener('click', () => {
+      renderizarCarrinho();
+      if (modalCarrinho) modalCarrinho.classList.add('active');
     });
-
-    const closeMenu = () => {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('open');
-    };
-
-    if (menuClose) menuClose.addEventListener('click', closeMenu);
-    overlay.addEventListener('click', closeMenu);
   }
 
-  // Roteamento via URL (?id=...)
-  const urlParams = new URLSearchParams(window.location.search);
-  const produtoId = urlParams.get('id');
-
-  if (produtoId) {
-    carregarDetalhesProduto(produtoId);
-  } else {
-    carregarVitrine();
+  if (btnFecharCarrinho) {
+    btnFecharCarrinho.addEventListener('click', () => {
+      if (modalCarrinho) modalCarrinho.classList.remove('active');
+    });
   }
-});
 
-let listaProdutos = [];
-let produtoAtual = null;
-let carrinho = [];
+  // BOTAO LIMPAR CARRINHO
+  if (btnLimparCarrinho) {
+    btnLimparCarrinho.addEventListener('click', () => {
+      if (carrinho.length === 0) {
+        Toast.fire({ icon: 'info', title: 'O carrinho já está vazio!' });
+        return;
+      }
 
-function obterImagemProduto(p) {
-  return p.imagem || p.fotoShopee || p.fotoMercadoLivre || p.fotoTikTok || 'https://via.placeholder.com/400?text=Sem+Imagem';
-}
+      Swal.fire({
+        title: 'Esvaziar Carrinho?',
+        text: 'Você tem certeza que deseja remover todos os itens?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Sim, esvaziar!',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          carrinho = [];
+          salvarCarrinho();
+          renderizarCarrinho();
+          Toast.fire({ icon: 'success', title: 'Carrinho esvaziado!' });
+        }
+      });
+    });
+  }
 
-function obterPrecoProduto(p) {
-  const precos = [p.precoShopee, p.precoMercadoLivre, p.precoTikTok, p.preco]
-    .map(v => parseFloat(v))
-    .filter(v => !isNaN(v) && v > 0);
-  return precos.length > 0 ? Math.min(...precos) : 0;
-}
+  function salvarCarrinho() {
+    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+    const qtdEl = document.getElementById('carrinho-qtd');
+    if (qtdEl) qtdEl.innerText = carrinho.length;
+  }
 
-// 1. Carrega a Vitrine
-async function carregarVitrine() {
-  const secVitrine = document.getElementById('secao-vitrine');
-  const secDetalhes = document.getElementById('secao-detalhes');
-  const barraInf = document.getElementById('barra-inferior');
-
-  if (secVitrine) secVitrine.style.display = 'grid';
-  if (secDetalhes) secDetalhes.style.display = 'none';
-  if (barraInf) barraInf.style.display = 'none';
-
-  try {
-    const res = await fetch('/api/produtos');
-    listaProdutos = await res.json();
-    localStorage.setItem('produtos_cache', JSON.stringify(listaProdutos));
-
-    const container = document.getElementById('grid-produtos');
+  function renderizarCarrinho() {
+    const container = document.getElementById('carrinho-itens');
+    const totalEl = document.getElementById('carrinho-total-itens');
     if (!container) return;
-    container.innerHTML = '';
 
-    if (!Array.isArray(listaProdutos) || listaProdutos.length === 0) {
-      container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 20px; color: #666;">Nenhum produto cadastrado no momento.</p>';
+    container.innerHTML = '';
+    if (totalEl) totalEl.innerText = carrinho.length;
+
+    if (carrinho.length === 0) {
+      container.innerHTML = '<p style="color:#888; text-align: center; margin-top: 20px;">Seu carrinho está vazio.</p>';
       return;
     }
 
-    listaProdutos.forEach((p, index) => {
-      const idProd = p.id || p._id || index;
-      const preco = obterPrecoProduto(p);
-      const imagemSrc = obterImagemProduto(p);
-
-      container.innerHTML += `
-        <div class="card-produto" onclick="verProduto('${idProd}')">
-          <img src="${imagemSrc}" alt="${p.titulo || 'Produto'}">
-          <div class="card-info">
-            <h4 class="card-titulo">${p.titulo || 'Produto sem título'}</h4>
-            <div class="card-preco">R$ ${preco.toFixed(2).replace('.', ',')}</div>
+    carrinho.forEach((item, index) => {
+      const div = document.createElement('div');
+      div.className = 'carrinho-item';
+      div.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="${item.imagem || 'https://via.placeholder.com/45'}" alt="${item.titulo}">
+          <div>
+            <strong style="font-size: 0.85rem; display: block; color: #333;">${item.titulo}</strong>
+            <span style="font-size: 0.75rem; color: #888;">${item.categoria || 'Geral'}</span>
           </div>
         </div>
+        <button class="btn-remover-item" style="background: none; border: none; color: #dc2626; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
       `;
+
+      // Remover item individual com confirmação
+      div.querySelector('.btn-remover-item').addEventListener('click', () => {
+        Swal.fire({
+          title: 'Remover produto?',
+          text: `Remover "${item.titulo}" do carrinho?`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#dc2626',
+          cancelButtonColor: '#64748b',
+          confirmButtonText: 'Remover',
+          cancelButtonText: 'Cancelar'
+        }).then((res) => {
+          if (res.isConfirmed) {
+            carrinho.splice(index, 1);
+            salvarCarrinho();
+            renderizarCarrinho();
+            Toast.fire({ icon: 'success', title: 'Produto removido!' });
+          }
+        });
+      });
+
+      container.appendChild(div);
     });
-  } catch (err) {
-    console.error('Erro ao carregar a vitrine:', err);
-  }
-}
-
-function verProduto(id) {
-  window.location.href = `?id=${encodeURIComponent(id)}`;
-}
-
-function voltarVitrine() {
-  window.location.href = '/';
-}
-
-// 2. Carrega a Tela de Detalhes
-async function carregarDetalhesProduto(id) {
-  const secVitrine = document.getElementById('secao-vitrine');
-  const secDetalhes = document.getElementById('secao-detalhes');
-  const barraInf = document.getElementById('barra-inferior');
-
-  if (secVitrine) secVitrine.style.display = 'none';
-  if (secDetalhes) secDetalhes.style.display = 'block';
-  if (barraInf) barraInf.style.display = 'flex';
-
-  let produtoEncontrado = null;
-
-  try {
-    const res = await fetch(`/api/produtos/${id}`);
-    if (res.ok) produtoEncontrado = await res.json();
-  } catch (e) {}
-
-  if (!produtoEncontrado) {
-    const cache = localStorage.getItem('produtos_cache');
-    if (cache) {
-      const produtos = JSON.parse(cache);
-      produtoEncontrado = produtos.find((p, idx) => p.id == id || p._id == id || idx == id);
-    }
   }
 
-  if (produtoEncontrado) {
-    exibirDadosProduto(produtoEncontrado);
+  // Carregar produtos da API na Vitrine
+  function carregarVitrine() {
+    fetch('/api/produtos')
+      .then(r => r.json())
+      .then(produtos => {
+        const container = document.getElementById('vitrine-produtos');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (!Array.isArray(produtos) || produtos.length === 0) {
+          container.innerHTML = '<p style="color:#888;">Nenhum produto cadastrado.</p>';
+          return;
+        }
+
+        produtos.forEach(p => {
+          const card = document.createElement('div');
+          card.style.cssText = 'background: #fff; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;';
+          const img = p.imagem || 'https://via.placeholder.com/150';
+
+          card.innerHTML = `
+            <div>
+              <img src="${img}" style="width: 100%; height: 140px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">
+              <strong style="font-size: 0.9rem; color: #333; display: block; margin-bottom: 5px;">${p.titulo}</strong>
+            </div>
+            <button class="btn-add-carrinho" style="background: #ef4444; color: #fff; border: none; padding: 8px; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px;">
+              <i class="fa-solid fa-cart-plus"></i> Adicionar
+            </button>
+          `;
+
+          card.querySelector('.btn-add-carrinho').addEventListener('click', () => {
+            carrinho.push(p);
+            salvarCarrinho();
+            Toast.fire({ icon: 'success', title: 'Adicionado ao carrinho!' });
+          });
+
+          container.appendChild(card);
+        });
+      })
+      .catch(() => {});
   }
-}
 
-function exibirDadosProduto(p) {
-  produtoAtual = p;
-
-  const imgEl = document.getElementById('img-destaque');
-  const titEl = document.getElementById('titulo-produto');
-  const precoPr = document.getElementById('preco-principal');
-  const precoParc = document.getElementById('preco-parcelado');
-
-  const imagemPrincipal = obterImagemProduto(p);
-  const menorPreco = obterPrecoProduto(p);
-
-  if (imgEl) imgEl.src = imagemPrincipal;
-  if (titEl) titEl.innerText = p.titulo || 'Produto';
-
-  if (precoPr) precoPr.innerText = menorPreco.toFixed(2).replace('.', ',');
-  if (precoParc) precoParc.innerText = `Ou em até 12x de R$ ${(menorPreco / 12 * 1.15).toFixed(2).replace('.', ',')}`;
-
-  const containerThumbs = document.getElementById('var-thumbs-container');
-  if (containerThumbs) {
-    const fotosAdicionais = [p.fotoShopee, p.fotoMercadoLivre, p.fotoTikTok, p.imagem].filter(f => f && f.length > 0);
-    const fotosUnicas = [...new Set(fotosAdicionais)];
-
-    if (fotosUnicas.length > 0) {
-      containerThumbs.innerHTML = fotosUnicas.map((f, idx) => `
-        <img class="var-thumb-item ${idx === 0 ? 'active' : ''}" src="${f}" onclick="trocarImagem('${f}', this)">
-      `).join('');
-    } else {
-      containerThumbs.innerHTML = `<img class="var-thumb-item active" src="${imagemPrincipal}" onclick="trocarImagem('${imagemPrincipal}', this)">`;
-    }
-  }
-}
-
-function trocarImagem(src, elemento) {
-  const imgEl = document.getElementById('img-destaque');
-  if (imgEl) imgEl.src = src;
-  document.querySelectorAll('.var-thumb-item').forEach(el => el.classList.remove('active'));
-  if (elemento) elemento.classList.add('active');
-}
-
-function adicionarProdutoAtual() {
-  if (produtoAtual) {
-    carrinho.push(produtoAtual);
-    const countEl = document.getElementById('cart-badge-count');
-    if (countEl) countEl.innerText = carrinho.length;
-
-    if (typeof Swal !== 'undefined') {
-      const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
-      Toast.fire({ icon: 'success', title: 'Adicionado ao carrinho!' });
-    }
-  }
-}
-
-// MODAL COM BOTÕES ARREDONDADOS E ÍCONES
-function abrirModalCheckout() {
-  if (!produtoAtual) return;
-
-  const p = produtoAtual;
-  const linkShopee = p.linkShopee || '#';
-  const linkML = p.linkMercadoLivre || '#';
-  const linkTikTok = p.linkTikTok || '#';
-
-  if (typeof Swal !== 'undefined') {
-    Swal.fire({
-      title: '<span style="font-size: 1.1rem; color: #333;">Escolha onde comprar</span>',
-      html: `
-        <p style="font-size: 0.85rem; color: #666; margin-bottom: 18px;">${p.titulo}</p>
-        <div style="display: flex; justify-content: center; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 10px;">
-          
-          ${linkShopee !== '#' ? `
-            <a href="${linkShopee}" target="_blank" style="text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-              <div style="width: 52px; height: 52px; border-radius: 50%; background: #EE4D2D; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; box-shadow: 0 4px 8px rgba(238, 77, 45, 0.3);">
-                <i class="fa-solid fa-bag-shopping"></i>
-              </div>
-              <span style="font-size: 11px; font-weight: 600; color: #EE4D2D;">Shopee</span>
-            </a>
-          ` : ''}
-
-          ${linkML !== '#' ? `
-            <a href="${linkML}" target="_blank" style="text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-              <div style="width: 52px; height: 52px; border-radius: 50%; background: #FFE600; display: flex; align-items: center; justify-content: center; color: #2D3277; font-size: 22px; box-shadow: 0 4px 8px rgba(255, 230, 0, 0.4);">
-                <i class="fa-solid fa-handshake"></i>
-              </div>
-              <span style="font-size: 11px; font-weight: 600; color: #2D3277;">M. Livre</span>
-            </a>
-          ` : ''}
-
-          ${linkTikTok !== '#' ? `
-            <a href="${linkTikTok}" target="_blank" style="text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-              <div style="width: 52px; height: 52px; border-radius: 50%; background: #000; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
-                <i class="fa-brands fa-tiktok"></i>
-              </div>
-              <span style="font-size: 11px; font-weight: 600; color: #000;">TikTok</span>
-            </a>
-          ` : ''}
-
-        </div>
-      `,
-      showConfirmButton: false,
-      showCancelButton: true,
-      cancelButtonText: 'Fechar',
-      customClass: {
-        popup: 'modal-arredondada'
-      }
-    });
-  } else {
-    window.open(linkShopee !== '#' ? linkShopee : linkML, '_blank');
-  }
-}
-
-function compartilharProduto() {
-  if (navigator.share) {
-    navigator.share({ title: document.title, url: window.location.href });
-  } else {
-    navigator.clipboard.writeText(window.location.href);
-    alert('Link copiado!');
-  }
-}
+  salvarCarrinho();
+  carregarVitrine();
+});

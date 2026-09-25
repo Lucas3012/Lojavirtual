@@ -3,88 +3,127 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Achadinhos LK</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Achadinhos LK - Vitrine</title>
+  <link rel="stylesheet" href="/dashboard.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- SweetAlert2 CSS & JS -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* Estilos da Modal do Carrinho */
+    .carrinho-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .carrinho-modal.active {
+      display: flex;
+    }
+    .carrinho-content {
+      background: #fff;
+      width: 90%;
+      max-width: 450px;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .carrinho-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    .carrinho-body {
+      overflow-y: auto;
+      flex: 1;
+      margin-bottom: 15px;
+    }
+    .carrinho-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f8fafc;
+    }
+    .carrinho-item img {
+      width: 45px;
+      height: 45px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+    .btn-limpar {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: 0.2s;
+    }
+    .btn-limpar:hover {
+      background: #b91c1c;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Topo -->
-  <div class="shopee-top-bar">
-    <i class="fa-solid fa-bars" id="menu-toggle"></i>
-    <div class="shopee-search-box">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="text" placeholder="Buscar no Achadinhos LK...">
-    </div>
-    <div class="top-icons-right">
-      <a href="https://wa.me/5573981070937" target="_blank" style="text-decoration: none;"><i class="fa-brands fa-whatsapp"></i></a>
-      <i class="fa-solid fa-share-nodes" onclick="compartilharProduto()"></i>
-      <div class="badge-cart-shopee" onclick="abrirModalCheckout()">
-        <i class="fa-solid fa-cart-shopping"></i>
-        <span class="count" id="cart-badge-count">0</span>
-      </div>
-    </div>
-  </div>
+  <!-- Header da Vitrine -->
+  <header style="background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <h2 style="margin: 0; color: #ef4444; font-size: 1.3rem;">Achadinhos LK</h2>
+    <button id="btn-abrir-carrinho" style="background: #f1f5f9; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+      <i class="fa-solid fa-cart-shopping" style="color: #ef4444;"></i>
+      <span id="carrinho-qtd">0</span>
+    </button>
+  </header>
 
-  <!-- Menu Lateral -->
-  <div class="sidebar-overlay" id="sidebar-overlay"></div>
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <span>Menu Achadinhos</span>
-      <button id="menu-close" style="background:none; border:none; color:white; font-size:1.4rem; cursor:pointer;">&times;</button>
+  <!-- Conteúdo Vitrine -->
+  <main style="padding: 20px; max-width: 1200px; margin: 0 auto;">
+    <h3 style="color: #333; margin-bottom: 15px;">Destaques para você</h3>
+    <div id="vitrine-produtos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px;">
+      <p style="color: #888;">Carregando produtos...</p>
     </div>
-    <nav class="sidebar-nav">
-      <a href="/" class="nav-item">🏠 Vitrine Principal</a>
-      <a href="/dashboard" class="nav-item">📊 Dashboard</a>
-      <a href="/admin" class="nav-item">⚙️ Painel Admin</a>
-    </nav>
-  </aside>
-
-  <!-- 1. SEÇÃO VITRINE (Página Inicial) -->
-  <main class="vitrine-container" id="secao-vitrine">
-    <div id="grid-produtos" style="display: contents;"></div>
   </main>
 
-  <!-- 2. SEÇÃO DETALHES DO PRODUTO (Estilo Shopee) -->
-  <div class="product-details-container" id="secao-detalhes">
-    <div class="btn-voltar" onclick="voltarVitrine()"><i class="fa-solid fa-arrow-left"></i> Voltar para a vitrine</div>
+  <!-- MODAL DO CARRINHO -->
+  <div id="modal-carrinho" class="carrinho-modal">
+    <div class="carrinho-content">
+      <div class="carrinho-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <h3 style="margin: 0; font-size: 1.1rem; color: #333;">Meu Carrinho</h3>
+          <button id="btn-limpar-carrinho" class="btn-limpar">
+            <i class="fa-solid fa-trash-can"></i> Limpar
+          </button>
+        </div>
+        <button id="btn-fechar-carrinho" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #888;">&times;</button>
+      </div>
 
-    <div class="main-image-container">
-      <img id="img-destaque" src="" alt="Produto">
-    </div>
+      <div id="carrinho-itens" class="carrinho-body">
+        <!-- Itens injetados pelo app.js -->
+      </div>
 
-    <div class="price-section-shopee">
-      <div class="price-pix">R$ <span id="preco-principal">0,00</span> <span>no Pix ></span></div>
-      <div class="price-parcelado" id="preco-parcelado">Ou até 12x no cartão</div>
-      <div class="vip-banner-shopee">
-        <span><i class="fa-solid fa-crown"></i> Desconto exclusivo no checkout!</span>
-        <i class="fa-solid fa-chevron-right"></i>
+      <div style="border-top: 1px solid #eee; padding-top: 10px;">
+        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 10px;">
+          <span>Total de itens:</span>
+          <span id="carrinho-total-itens">0</span>
+        </div>
       </div>
     </div>
-
-    <div class="title-section-shopee">
-      <span class="tag-indicado-shopee">Indicado</span>
-      <span class="product-title-shopee" id="titulo-produto">Carregando...</span>
-    </div>
-
-    <div class="variations-section">
-      <div class="var-title">Cor / Variação</div>
-      <div class="var-thumbs" id="var-thumbs-container"></div>
-    </div>
   </div>
 
-  <!-- Barra Fixa Inferior (Apenas na página do produto) -->
-  <div class="shopee-bottom-bar" id="barra-inferior">
-    <a href="https://wa.me/5573981070937?text=Ol%C3%A1!" target="_blank" class="btn-action-chat">
-      <i class="fa-regular fa-comments"></i>
-      <span>Chat</span>
-    </a>
-    <button class="btn-action-cart" onclick="adicionarProdutoAtual()"><i class="fa-solid fa-cart-plus"></i></button>
-    <button class="btn-action-buy" onclick="abrirModalCheckout()">Compre agora</button>
-  </div>
-
-  <script src="app.js"></script>
+  <!-- Carrega a lógica principal -->
+  <script src="/app.js"></script>
 </body>
 </html>
