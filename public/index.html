@@ -3,32 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Achadinhos LK | Vitrine de Ofertas</title>
+  <title>Achadinhos LK</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
-  <!-- Header Vermelho Estilo Shopee com Título Centralizado -->
-  <header class="header-shopee">
-    <div class="header-top">
-      <div class="header-menu-btn" id="menu-toggle">☰</div>
-      <div class="header-logo">🛍️ Achadinhos LK</div>
-      <div class="header-badge" id="cart-badge-count">🛒 0</div>
+  <!-- Topo -->
+  <div class="shopee-top-bar">
+    <i class="fa-solid fa-bars" id="menu-toggle"></i>
+    <div class="shopee-search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Buscar no Achadinhos LK...">
     </div>
-    
-    <div class="search-bar-shopee">
-      🔍 <input type="text" id="input-busca" placeholder="Buscar na vitrine de achados..." onkeyup="filtrarProdutos()">
+    <div class="top-icons-right">
+      <a href="https://wa.me/5573981070937" target="_blank" style="text-decoration: none;"><i class="fa-brands fa-whatsapp"></i></a>
+      <i class="fa-solid fa-share-nodes" onclick="compartilharProduto()"></i>
+      <div class="badge-cart-shopee" onclick="abrirModalCheckout()">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span class="count" id="cart-badge-count">0</span>
+      </div>
     </div>
-  </header>
+  </div>
 
   <!-- Menu Lateral -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <h3>Menu Achadinhos</h3>
-      <button id="menu-close" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;">&times;</button>
+      <span>Menu Achadinhos</span>
+      <button id="menu-close" style="background:none; border:none; color:white; font-size:1.4rem; cursor:pointer;">&times;</button>
     </div>
     <nav class="sidebar-nav">
       <a href="/" class="nav-item">🏠 Vitrine Principal</a>
@@ -37,232 +42,49 @@
     </nav>
   </aside>
 
-  <!-- Banner Promocional -->
-  <div class="banner-promo">
-    <div>
-      <h4>CUPONS ATÉ R$ 100 OFF 🔥</h4>
-      <p>Confira os melhores achadinhos das lojas parceiras</p>
-    </div>
-    <div style="font-size: 1.5rem;">🏷️</div>
-  </div>
-
-  <!-- Grid de Produtos -->
-  <main class="container" style="padding-bottom: 70px;">
-    <div id="grid-produtos" class="grid-shopee"></div>
+  <!-- 1. SEÇÃO VITRINE (Página Inicial) -->
+  <main class="vitrine-container" id="secao-vitrine">
+    <div id="grid-produtos" style="display: contents;"></div>
   </main>
 
-  <!-- Barra de Checkout Flutuante no Rodapé -->
-  <div class="checkout-bar" id="checkout-bar" style="display: none;">
-    <div class="checkout-info">
-      <span class="checkout-total-label" id="cart-items-text">0 itens selecionados</span>
-      <div class="checkout-total-price">Total: R$ <span id="cart-total-price">0,00</span></div>
+  <!-- 2. SEÇÃO DETALHES DO PRODUTO (Estilo Shopee) -->
+  <div class="product-details-container" id="secao-detalhes">
+    <div class="btn-voltar" onclick="voltarVitrine()"><i class="fa-solid fa-arrow-left"></i> Voltar para a vitrine</div>
+
+    <div class="main-image-container">
+      <img id="img-destaque" src="" alt="Produto">
     </div>
-    <button type="button" class="btn-checkout-finish" onclick="abrirModalCheckout()">🛒 FINALIZAR PEDIDO</button>
+
+    <div class="price-section-shopee">
+      <div class="price-pix">R$ <span id="preco-principal">0,00</span> <span>no Pix ></span></div>
+      <div class="price-parcelado" id="preco-parcelado">Ou até 12x no cartão</div>
+      <div class="vip-banner-shopee">
+        <span><i class="fa-solid fa-crown"></i> Desconto exclusivo no checkout!</span>
+        <i class="fa-solid fa-chevron-right"></i>
+      </div>
+    </div>
+
+    <div class="title-section-shopee">
+      <span class="tag-indicado-shopee">Indicado</span>
+      <span class="product-title-shopee" id="titulo-produto">Carregando...</span>
+    </div>
+
+    <div class="variations-section">
+      <div class="var-title">Cor / Variação</div>
+      <div class="var-thumbs" id="var-thumbs-container"></div>
+    </div>
   </div>
 
-  <!-- Botão Flutuante do WhatsApp -->
-  <a href="https://wa.me/5573981070937?text=Ol%C3%A1!%20Vim%20pela%20vitrine%20e%20preciso%20de%20suporte." class="whatsapp-float" target="_blank" aria-label="Suporte WhatsApp" style="bottom: 75px;">
-    <svg viewBox="0 0 32 32">
-      <path d="M16 2A13 13 0 0 0 4.69 21.25L3 27.5a1 1 0 0 0 1.22 1.22l6.25-1.69A13 13 0 1 0 16 2zm0 24a11 11 0 0 1-5.61-1.54 1 1 0 0 0-.74-.12l-4.22 1.14 1.14-4.22a1 1 0 0 0-.12-.74A11 11 0 1 1 16 26zm6.3-8.24c-.35-.18-2.07-1-2.39-1.12s-.56-.18-.79.18-.91 1.12-1.12 1.35-.42.26-.77.09a9.7 9.7 0 0 1-2.86-1.77 10.71 10.71 0 0 1-1.98-2.46c-.21-.35 0-.54.16-.72s.35-.42.53-.63a2.39 2.39 0 0 0 .35-.58.65.65 0 0 0 0-.63c-.09-.18-.79-1.91-1.08-2.61s-.58-.58-.79-.59h-.67a1.29 1.29 0 0 0-.93.43 3.93 3.93 0 0 0-1.22 2.92 6.86 6.86 0 0 0 1.44 3.63 15.68 15.68 0 0 0 6 5.31c.71.31 1.27.49 1.7.63a4.08 4.08 0 0 0 1.87.12 3.06 3.06 0 0 0 2-1.42 2.5 2.5 0 0 0 .18-1.42c-.07-.12-.26-.19-.61-.37z"/>
-    </svg>
-  </a>
+  <!-- Barra Fixa Inferior (Apenas na página do produto) -->
+  <div class="shopee-bottom-bar" id="barra-inferior">
+    <a href="https://wa.me/5573981070937?text=Ol%C3%A1!" target="_blank" class="btn-action-chat">
+      <i class="fa-regular fa-comments"></i>
+      <span>Chat</span>
+    </a>
+    <button class="btn-action-cart" onclick="adicionarProdutoAtual()"><i class="fa-solid fa-cart-plus"></i></button>
+    <button class="btn-action-buy" onclick="abrirModalCheckout()">Compre agora</button>
+  </div>
 
-  <script>
-    const menuToggle = document.getElementById('menu-toggle');
-    const menuClose = document.getElementById('menu-close');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-
-    menuToggle.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('open'); });
-    const closeMenu = () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); };
-    menuClose.addEventListener('click', closeMenu);
-    overlay.addEventListener('click', closeMenu);
-
-    let listaProdutosGlobal = [];
-    let carrinho = [];
-
-    async function carregarVitrine() {
-      const grid = document.getElementById('grid-produtos');
-      try {
-        const res = await fetch('/api/produtos');
-        listaProdutosGlobal = await res.json();
-        renderizarProdutos(listaProdutosGlobal);
-      } catch (err) {
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding:20px; color:red;">Erro ao carregar os achadinhos.</p>';
-      }
-    }
-
-    function renderizarProdutos(produtos) {
-      const grid = document.getElementById('grid-produtos');
-      if (!produtos || produtos.length === 0) {
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding:20px; color:#666;">Nenhum produto encontrado.</p>';
-        return;
-      }
-
-      grid.innerHTML = produtos.map(p => {
-        const linkShopee = p.linkShopee || '#';
-        const linkML = p.linkMercadoLivre || '#';
-        const linkTikTok = p.linkTikTok || '#';
-
-        const pShopee = parseFloat(p.precoShopee || p.preco || 0).toFixed(2).replace('.', ',');
-        const pML = parseFloat(p.precoMercadoLivre || p.preco || 0).toFixed(2).replace('.', ',');
-        const pTikTok = parseFloat(p.precoTikTok || p.preco || 0).toFixed(2).replace('.', ',');
-
-        const precosValidos = [p.precoShopee, p.precoMercadoLivre, p.precoTikTok].map(Number).filter(v => v > 0);
-        const valorNumerico = precosValidos.length > 0 ? Math.min(...precosValidos) : parseFloat(p.preco || 0);
-        const menorPreco = valorNumerico.toFixed(2).replace('.', ',');
-
-        return `
-          <div class="card-shopee">
-            <div class="card-img-wrapper">
-              <span class="badge-desconto">-50% OFF</span>
-              <img src="${p.imagem}" onerror="this.src='https://via.placeholder.com/300?text=Achadinhos+LK'" alt="${p.titulo}">
-            </div>
-            <div class="card-body">
-              <div class="card-title">${p.titulo}</div>
-              
-              <div class="price-tag-shopee"><span>R$</span> ${menorPreco}</div>
-
-              <div class="buttons-platforms">
-                <a href="${linkShopee}" target="_blank" class="btn-platform btn-shopee ${linkShopee === '#' ? 'disabled' : ''}">
-                  <span>Shopee</span>
-                  ${linkShopee !== '#' ? `<span class="btn-price">R$ ${pShopee}</span>` : ''}
-                </a>
-                <a href="${linkML}" target="_blank" class="btn-platform btn-ml ${linkML === '#' ? 'disabled' : ''}">
-                  <span>M. Livre</span>
-                  ${linkML !== '#' ? `<span class="btn-price">R$ ${pML}</span>` : ''}
-                </a>
-                <a href="${linkTikTok}" target="_blank" class="btn-platform btn-tiktok ${linkTikTok === '#' ? 'disabled' : ''}">
-                  <span>TikTok</span>
-                  ${linkTikTok !== '#' ? `<span class="btn-price">R$ ${pTikTok}</span>` : ''}
-                </a>
-              </div>
-
-              <button class="btn-add-cart" onclick="adicionarAoCarrinho(${p.id})">
-                🛒 Adicionar
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function adicionarAoCarrinho(id) {
-      const produto = listaProdutosGlobal.find(p => p.id === id);
-      if (produto) {
-        carrinho.push(produto);
-        atualizarBarraCheckout();
-        
-        const Toast = Swal.mixin({
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 1500,
-          timerProgressBar: true
-        });
-        Toast.fire({
-          icon: 'success',
-          title: 'Adicionado ao carrinho!'
-        });
-      }
-    }
-
-    function atualizarBarraCheckout() {
-      const checkoutBar = document.getElementById('checkout-bar');
-      const cartBadgeCount = document.getElementById('cart-badge-count');
-      const cartItemsText = document.getElementById('cart-items-text');
-      const cartTotalPrice = document.getElementById('cart-total-price');
-
-      if (carrinho.length === 0) {
-        checkoutBar.style.display = 'none';
-        cartBadgeCount.innerText = '🛒 0';
-        return;
-      }
-
-      checkoutBar.style.display = 'flex';
-      cartBadgeCount.innerText = `🛒 ${carrinho.length}`;
-      cartItemsText.innerText = `${carrinho.length} ${carrinho.length === 1 ? 'item selecionado' : 'itens selecionados'}`;
-
-      const total = carrinho.reduce((acc, item) => {
-        const precos = [item.precoShopee, item.precoMercadoLivre, item.precoTikTok].map(Number).filter(v => v > 0);
-        const valor = precos.length > 0 ? Math.min(...precos) : parseFloat(item.preco || 0);
-        return acc + valor;
-      }, 0);
-
-      cartTotalPrice.innerText = total.toFixed(2).replace('.', ',');
-    }
-
-    function abrirModalCheckout() {
-      if (carrinho.length === 0) return;
-
-      const ultimoProduto = carrinho[carrinho.length - 1];
-      const linkShopee = ultimoProduto.linkShopee || '#';
-      const linkML = ultimoProduto.linkMercadoLivre || '#';
-      const linkTikTok = ultimoProduto.linkTikTok || '#';
-
-      const total = carrinho.reduce((acc, item) => {
-        const precos = [item.precoShopee, item.precoMercadoLivre, item.precoTikTok].map(Number).filter(v => v > 0);
-        const valor = precos.length > 0 ? Math.min(...precos) : parseFloat(item.preco || 0);
-        return acc + valor;
-      }, 0).toFixed(2).replace('.', ',');
-      
-      const resumoHTML = carrinho.map(item => {
-        const precos = [item.precoShopee, item.precoMercadoLivre, item.precoTikTok].map(Number).filter(v => v > 0);
-        const valor = precos.length > 0 ? Math.min(...precos) : parseFloat(item.preco || 0);
-        return `
-          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px; text-align:left;">
-            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px;">• ${item.titulo}</span>
-            <span style="font-weight:700;">R$ ${valor.toFixed(2).replace('.', ',')}</span>
-          </div>
-        `;
-      }).join('');
-
-      Swal.fire({
-        title: '🛒 Resumo do Checkout',
-        html: `
-          <div style="max-height: 150px; overflow-y: auto; padding-right:4px; margin-bottom:12px; border-bottom:1px solid #eee;">
-            ${resumoHTML}
-          </div>
-          <div style="display:flex; justify-content:space-between; font-weight:800; font-size:1rem; margin-bottom:12px; color:#EE4D2D;">
-            <span>Total:</span>
-            <span>R$ ${total}</span>
-          </div>
-          <p style="font-size:0.75rem; color:#666; margin-bottom:8px;">Escolha a loja parceira para comprar:</p>
-
-          <div class="checkout-platforms-container">
-            <a href="${linkShopee}" target="_blank" class="btn-circle-platform btn-circle-shopee ${linkShopee === '#' ? 'disabled' : ''}">
-              <span class="btn-circle-icon">🟠</span>
-              <span>Shopee</span>
-            </a>
-            <a href="${linkML}" target="_blank" class="btn-circle-platform btn-circle-ml ${linkML === '#' ? 'disabled' : ''}">
-              <span class="btn-circle-icon">🟡</span>
-              <span>M. Livre</span>
-            </a>
-            <a href="${linkTikTok}" target="_blank" class="btn-circle-platform btn-circle-tiktok ${linkTikTok === '#' ? 'disabled' : ''}">
-              <span class="btn-circle-icon">⚫</span>
-              <span>TikTok</span>
-            </a>
-          </div>
-        `,
-        showConfirmButton: false,
-        showCancelButton: true,
-        cancelButtonText: 'Fechar / Limpar',
-        cancelButtonColor: '#64748b'
-      }).then((result) => {
-        if (result.dismiss === Swal.DismissReason.cancel) {
-          carrinho = [];
-          atualizarBarraCheckout();
-        }
-      });
-    }
-
-    function filtrarProdutos() {
-      const termo = document.getElementById('input-busca').value.toLowerCase();
-      const filtrados = listaProdutosGlobal.filter(p => p.titulo.toLowerCase().includes(termo));
-      renderizarProdutos(filtrados);
-    }
-
-    document.addEventListener('DOMContentLoaded', carregarVitrine);
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>

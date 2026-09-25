@@ -4,168 +4,79 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Achadinhos LK</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    .dash-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
-      margin-top: 16px;
-    }
-    .dash-card {
-      background: #fff;
-      padding: 16px;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .dash-card h4 {
-      font-size: 0.8rem;
-      color: #64748b;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-    }
-    .dash-card .value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #1e293b;
-    }
-    .cat-list {
-      background: #fff;
-      border-radius: 8px;
-      padding: 16px;
-      margin-top: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .cat-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #f1f5f9;
-      font-size: 0.9rem;
-    }
-    .cat-item:last-child {
-      border-bottom: none;
-    }
-  </style>
+  <link rel="stylesheet" href="/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-  <header class="navbar">
-    <button class="hamburger-btn" id="menu-toggle" aria-label="Abrir Menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-    <div class="logo">📊 Dashboard</div>
-  </header>
-
-  <div class="sidebar-overlay" id="sidebar-overlay"></div>
-  <aside class="sidebar" id="sidebar">
+  <!-- Overlay e Menu Lateral Estilo Vitrine -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar">
     <div class="sidebar-header">
-      <h2>Menu</h2>
-      <button class="close-btn" id="menu-close">&times;</button>
+      <h3>Menu Achadinhos</h3>
+      <button id="menu-close">&times;</button>
     </div>
-    <nav class="sidebar-nav">
-      <a href="/" class="nav-item">🏠 Vitrine (Home)</a>
-      <a href="/dashboard" class="nav-item">📊 Dashboard</a>
-      <a href="/admin" class="nav-item">⚙️ Painel Admin</a>
-    </nav>
+    <ul class="sidebar-menu">
+      <li><a href="/"><i class="fa-solid fa-house"></i> Vitrine Principal</a></li>
+      <li><a href="/dashboard" class="active"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+      <li><a href="/admin"><i class="fa-solid fa-gear"></i> Painel Admin</a></li>
+    </ul>
   </aside>
 
-  <main class="container">
-    <h2 style="font-size: 1.2rem; margin-top: 10px;">Resumo da Vitrine</h2>
-
-    <div class="dash-grid">
-      <div class="dash-card">
-        <h4>Total Produtos</h4>
-        <div class="value" id="total-produtos">0</div>
-      </div>
-      <div class="dash-card">
-        <h4>Shopee</h4>
-        <div class="value" style="color: #ee4d2d;" id="total-shopee">0</div>
-      </div>
-      <div class="dash-card">
-        <h4>Mercado Livre</h4>
-        <div class="value" style="color: #eab308;" id="total-ml">0</div>
-      </div>
-      <div class="dash-card">
-        <h4>TikTok Shop</h4>
-        <div class="value" style="color: #000;" id="total-tiktok">0</div>
-      </div>
+  <!-- Cabeçalho -->
+  <header class="admin-header">
+    <button id="menu-toggle" aria-label="Abrir Menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="admin-title">
+      <i class="fa-solid fa-chart-line"></i> Dashboard
     </div>
+  </header>
 
-    <div class="cat-list">
-      <h3 style="font-size: 1rem; margin-bottom: 12px; color: #1e293b;">Produtos por Categoria</h3>
-      <div id="categorias-container">
-        <p style="color: #94a3b8; font-size: 0.85rem;">Carregando dados...</p>
+  <!-- Conteúdo -->
+  <main style="padding: 20px;">
+    <h2 style="font-size: 1.2rem; color: #333; margin-bottom: 15px;">📊 Métricas e Desempenho</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px;">
+      <div style="background: #fff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+        <h3 id="dash-total-produtos" style="font-size: 1.8rem; color: #ef4444;">0</h3>
+        <p style="font-size: 0.85rem; color: #666;">Produtos</p>
+      </div>
+      <div style="background: #fff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+        <h3 id="dash-total-categorias" style="font-size: 1.8rem; color: #3b82f6;">0</h3>
+        <p style="font-size: 0.85rem; color: #666;">Categorias</p>
       </div>
     </div>
   </main>
 
   <script>
-    const menuToggle = document.getElementById('menu-toggle');
-    const menuClose = document.getElementById('menu-close');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
+    document.addEventListener('DOMContentLoaded', () => {
+      const menuToggle = document.getElementById('menu-toggle');
+      const menuClose = document.getElementById('menu-close');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
 
-    menuToggle.addEventListener('click', () => {
-      sidebar.classList.add('open');
-      overlay.classList.add('open');
-    });
-
-    const closeMenu = () => {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('open');
-    };
-
-    menuClose.addEventListener('click', closeMenu);
-    overlay.addEventListener('click', closeMenu);
-
-    async function carregarMétricas() {
-      try {
-        const res = await fetch('/api/produtos');
-        const produtos = await res.json();
-
-        document.getElementById('total-produtos').innerText = produtos.length;
-
-        let countShopee = 0;
-        let countML = 0;
-        let countTikTok = 0;
-        const categorias = {};
-
-        produtos.forEach(p => {
-          if (p.linkShopee && p.linkShopee !== '#') countShopee++;
-          if (p.linkMercadoLivre && p.linkMercadoLivre !== '#') countML++;
-          if (p.linkTikTok && p.linkTikTok !== '#') countTikTok++;
-
-          const cat = p.categoria ? p.categoria.toLowerCase() : 'geral';
-          categorias[cat] = (categorias[cat] || 0) + 1;
+      if (menuToggle && sidebar && overlay) {
+        menuToggle.addEventListener('click', () => {
+          sidebar.classList.add('open');
+          overlay.classList.add('open');
         });
 
-        document.getElementById('total-shopee').innerText = countShopee;
-        document.getElementById('total-ml').innerText = countML;
-        document.getElementById('total-tiktok').innerText = countTikTok;
+        const closeMenu = () => {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('open');
+        };
 
-        const catContainer = document.getElementById('categorias-container');
-        if (Object.keys(categorias).length === 0) {
-          catContainer.innerHTML = '<p style="color: #94a3b8; font-size: 0.85rem;">Nenhum produto cadastrado.</p>';
-        } else {
-          catContainer.innerHTML = Object.entries(categorias).map(([cat, count]) => `
-            <div class="cat-item">
-              <span style="text-transform: capitalize; font-weight: 500;">${cat}</span>
-              <strong>${count}</strong>
-            </div>
-          `).join('');
-        }
-
-      } catch (err) {
-        console.error(err);
+        if (menuClose) menuClose.addEventListener('click', closeMenu);
+        overlay.addEventListener('click', closeMenu);
       }
-    }
 
-    document.addEventListener('DOMContentLoaded', carregarMétricas);
+      fetch('/api/produtos').then(r => r.json()).then(d => {
+        document.getElementById('dash-total-produtos').innerText = d.length || 0;
+      });
+      fetch('/api/categorias').then(r => r.json()).then(d => {
+        document.getElementById('dash-total-categorias').innerText = d.length || 0;
+      });
+    });
   </script>
 </body>
 </html>

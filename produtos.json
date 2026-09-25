@@ -25,7 +25,10 @@
     "imagem": "/uploads/img_1790045182118_933.jpg",
     "categoria": "eletrônico",
     "plataforma": "undefined",
-    "linkAfiliado": "undefined"
+    "linkAfiliado": "undefined",
+    "precoShopee": 80,
+    "precoMercadoLivre": 80,
+    "precoTikTok": 80
   },
   {
     "id": 1790044440774,
@@ -36,6 +39,9 @@
     "preco": 30,
     "precoAntigo": null,
     "imagem": "https://images.tcdn.com.br/img/img_prod/600280/fone_de_ouvido_sem_fio_tws_bluetooth_5_0_cor_preto_390507_1_ff9f86f68f2e4f8f5999fbdce8f5af6c.jpg",
-    "categoria": "eletrônico"
+    "categoria": "eletrônico",
+    "precoShopee": 30,
+    "precoMercadoLivre": 30,
+    "precoTikTok": 30
   }
 ]

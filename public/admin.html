@@ -4,295 +4,357 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel Admin - Achadinhos LK</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- SweetAlert2 CSS e JS CDN -->
+  <link rel="stylesheet" href="/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SweetAlert2 CSS & JS -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    .navbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
-    .navbar-left { display: flex; align-items: center; gap: 12px; }
-    .btn-logout-top { background-color: #ef4444; color: #fff; text-decoration: none; font-size: 0.8rem; font-weight: 600; padding: 6px 12px; border-radius: 6px; cursor: pointer; border: none; }
-    
-    .btn-platform { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; padding: 6px 4px; }
-    .btn-platform .btn-price { font-size: 0.7rem; font-weight: 700; opacity: 0.95; margin-top: 2px; }
-
-    .admin-actions { display: flex; gap: 6px; margin-top: 8px; }
-    .btn-admin { flex: 1; padding: 8px 4px; font-size: 0.75rem; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; text-align: center; color: #fff; }
-    .btn-edit { background-color: #0284c7; }
-    .btn-delete { background-color: #dc2626; }
-    
-    .swal2-input-group { text-align: left; margin-bottom: 8px; }
-    .swal2-input-group label { font-size: 0.8rem; font-weight: 600; color: #475569; display: block; margin-bottom: 2px; }
+    .swal-edit-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+      margin-top: 15px;
+      max-height: 70vh;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+    .swal-edit-form label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: -6px;
+    }
+    .swal-edit-form input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+    }
+    .swal-edit-group {
+      background: #f8fafc;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
   </style>
 </head>
 <body>
 
-  <header class="navbar">
-    <div class="navbar-left">
-      <button class="hamburger-btn" id="menu-toggle" aria-label="Abrir Menu">
-        <span></span><span></span><span></span>
-      </button>
-      <div class="logo">⚙️ Painel Admin</div>
-    </div>
-    <button type="button" id="btn-logout" class="btn-logout-top">🚪 Sair</button>
-  </header>
-
-  <div class="sidebar-overlay" id="sidebar-overlay"></div>
-  <aside class="sidebar" id="sidebar">
+  <!-- Overlay e Menu Lateral -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar">
     <div class="sidebar-header">
-      <h2>Menu</h2>
-      <button class="close-btn" id="menu-close">&times;</button>
+      <h3>Menu Achadinhos</h3>
+      <button id="menu-close">&times;</button>
     </div>
-    <nav class="sidebar-nav">
-      <a href="/" class="nav-item">🏠 Vitrine (Home)</a>
-      <a href="/dashboard" class="nav-item">📊 Dashboard</a>
-      <a href="/admin" class="nav-item">⚙️ Painel Admin</a>
-      <a href="#" id="btn-logout-sidebar" class="nav-item" style="color: #ef4444;">🚪 Sair</a>
-    </nav>
+    <ul class="sidebar-menu">
+      <li><a href="/"><i class="fa-solid fa-house"></i> Vitrine Principal</a></li>
+      <li><a href="/dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+      <li><a href="/admin" class="active"><i class="fa-solid fa-gear"></i> Painel Admin</a></li>
+    </ul>
   </aside>
 
-  <main class="container">
-    <h2 style="font-size: 1.1rem; margin: 10px 0;">Gerenciar Produtos</h2>
-    <div id="grid-admin" class="grid-shopee"></div>
+  <!-- Cabeçalho -->
+  <header class="admin-header">
+    <button id="menu-toggle" aria-label="Abrir Menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="admin-title">
+      <i class="fa-solid fa-gear"></i> Painel Admin
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main style="padding: 20px;">
+    <!-- NAVEGAÇÃO POR ABAS -->
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+      <button id="btn-aba-produtos" style="background: #ef4444; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s;">📦 Produtos</button>
+      <button id="btn-aba-categorias" style="background: #f1f5f9; color: #64748b; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s;">🏷️ Categorias</button>
+    </div>
+
+    <!-- SEÇÃO PRODUTOS -->
+    <section id="secao-produtos" style="background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="font-size: 1rem; color: #333;">Lista de Produtos</h3>
+      </div>
+      <div id="lista-admin-produtos">
+        <p style="color: #888; font-size: 0.9rem;">Carregando produtos...</p>
+      </div>
+    </section>
+
+    <!-- SEÇÃO CATEGORIAS -->
+    <section id="secao-categorias" style="display: none; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="font-size: 1rem; color: #333;">Lista de Categorias</h3>
+      </div>
+      <div id="lista-admin-categorias">
+        <p style="color: #888; font-size: 0.9rem;">Carregando categorias...</p>
+      </div>
+    </section>
   </main>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Menu Hambúrguer e Sidebar
       const menuToggle = document.getElementById('menu-toggle');
       const menuClose = document.getElementById('menu-close');
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebar-overlay');
-      const gridAdmin = document.getElementById('grid-admin');
-      const btnLogout = document.getElementById('btn-logout');
-      const btnLogoutSidebar = document.getElementById('btn-logout-sidebar');
 
-      let listaProdutos = [];
+      if (menuToggle && sidebar && overlay) {
+        menuToggle.addEventListener('click', () => {
+          sidebar.classList.add('open');
+          overlay.classList.add('open');
+        });
 
-      // Controle do Menu Lateral
-      menuToggle.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('open'); });
-      const closeMenu = () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); };
-      menuClose.addEventListener('click', closeMenu);
-      overlay.addEventListener('click', closeMenu);
+        const closeMenu = () => {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('open');
+        };
 
-      // Função para carregar os produtos do servidor
-      async function carregarProdutosAdmin() {
-        try {
-          const res = await fetch('/api/produtos');
-          listaProdutos = await res.json();
-
-          if (!Array.isArray(listaProdutos) || listaProdutos.length === 0) {
-            gridAdmin.innerHTML = '<p id="msg-empty">Nenhum produto cadastrado.</p>';
-            return;
-          }
-
-          gridAdmin.innerHTML = listaProdutos.map(p => {
-            const linkShopee = p.linkShopee || '#';
-            const linkML = p.linkMercadoLivre || '#';
-            const linkTikTok = p.linkTikTok || '#';
-
-            const pShopee = parseFloat(p.precoShopee || p.preco || 0).toFixed(2).replace('.', ',');
-            const pML = parseFloat(p.precoMercadoLivre || p.preco || 0).toFixed(2).replace('.', ',');
-            const pTikTok = parseFloat(p.precoTikTok || p.preco || 0).toFixed(2).replace('.', ',');
-
-            return `
-              <div class="card-shopee">
-                <div class="card-img-wrapper">
-                  <img src="${p.imagem}" onerror="this.src='https://via.placeholder.com/300?text=Sem+Imagem'" alt="${p.titulo}">
-                </div>
-                <div class="card-body">
-                  <h3 class="card-title">${p.titulo}</h3>
-                  
-                  <div class="buttons-platforms">
-                    <a href="${linkShopee}" target="_blank" class="btn-platform btn-shopee ${linkShopee === '#' ? 'disabled' : ''}">
-                      <span>Shopee</span>
-                      ${linkShopee !== '#' ? `<span class="btn-price">R$ ${pShopee}</span>` : ''}
-                    </a>
-                    <a href="${linkML}" target="_blank" class="btn-platform btn-ml ${linkML === '#' ? 'disabled' : ''}">
-                      <span>M. Livre</span>
-                      ${linkML !== '#' ? `<span class="btn-price">R$ ${pML}</span>` : ''}
-                    </a>
-                    <a href="${linkTikTok}" target="_blank" class="btn-platform btn-tiktok ${linkTikTok === '#' ? 'disabled' : ''}">
-                      <span>TikTok</span>
-                      ${linkTikTok !== '#' ? `<span class="btn-price">R$ ${pTikTok}</span>` : ''}
-                    </a>
-                  </div>
-
-                  <div class="admin-actions">
-                    <button type="button" class="btn-admin btn-edit" data-id="${p.id}">✏️ Editar</button>
-                    <button type="button" class="btn-admin btn-delete" data-id="${p.id}">🗑️ Excluir</button>
-                  </div>
-                </div>
-              </div>
-            `;
-          }).join('');
-
-        } catch (err) {
-          console.error('Erro ao carregar produtos:', err);
-          gridAdmin.innerHTML = '<p id="msg-empty" style="color:red;">Erro ao carregar produtos.</p>';
-        }
+        if (menuClose) menuClose.addEventListener('click', closeMenu);
+        overlay.addEventListener('click', closeMenu);
       }
 
-      // Escutador Global de Eventos no Grid para Editar / Excluir
-      gridAdmin.addEventListener('click', (e) => {
-        const btnDelete = e.target.closest('.btn-delete');
-        const btnEdit = e.target.closest('.btn-edit');
+      // Alternância de Abas
+      const btnProdutos = document.getElementById('btn-aba-produtos');
+      const btnCategorias = document.getElementById('btn-aba-categorias');
+      const secaoProdutos = document.getElementById('secao-produtos');
+      const secaoCategorias = document.getElementById('secao-categorias');
 
-        if (btnDelete) {
-          const id = Number(btnDelete.getAttribute('data-id'));
-          excluirProduto(id);
-        } else if (btnEdit) {
-          const id = Number(btnEdit.getAttribute('data-id'));
-          abrirEdicao(id);
-        }
+      btnProdutos.addEventListener('click', () => {
+        btnProdutos.style.background = '#ef4444';
+        btnProdutos.style.color = '#fff';
+        btnCategorias.style.background = '#f1f5f9';
+        btnCategorias.style.color = '#64748b';
+
+        secaoProdutos.style.display = 'block';
+        secaoCategorias.style.display = 'none';
+        carregarProdutos();
       });
 
-      // Função com Modal SweetAlert2 para Edição
-      function abrirEdicao(id) {
-        const p = listaProdutos.find(item => Number(item.id) === Number(id));
-        if (!p) return;
+      btnCategorias.addEventListener('click', () => {
+        btnCategorias.style.background = '#ef4444';
+        btnCategorias.style.color = '#fff';
+        btnProdutos.style.background = '#f1f5f9';
+        btnProdutos.style.color = '#64748b';
 
-        Swal.fire({
-          title: '✏️ Editar Produto',
-          html: `
-            <div class="swal2-input-group">
-              <label>Título:</label>
-              <input id="swal-titulo" class="swal2-input" value="${p.titulo || ''}" style="margin: 4px 0 10px; width: 100%; box-sizing: border-box;">
-            </div>
-            <div class="swal2-input-group">
-              <label>Link Shopee:</label>
-              <input id="swal-shopee" class="swal2-input" value="${p.linkShopee || '#'}" style="margin: 4px 0 10px; width: 100%; box-sizing: border-box;">
-              <label>Preço Shopee (R$):</label>
-              <input id="swal-preco-shopee" type="number" step="0.01" class="swal2-input" value="${p.precoShopee || p.preco || 0}" style="margin: 4px 0 10px; width: 100%; box-sizing: border-box;">
-            </div>
-            <div class="swal2-input-group">
-              <label>Link Mercado Livre:</label>
-              <input id="swal-ml" class="swal2-input" value="${p.linkMercadoLivre || '#'}" style="margin: 4px 0 10px; width: 100%; box-sizing: border-box;">
-              <label>Preço Mercado Livre (R$):</label>
-              <input id="swal-preco-ml" type="number" step="0.01" class="swal2-input" value="${p.precoMercadoLivre || p.preco || 0}" style="margin: 4px 0 10px; width: 100%; box-sizing: border-box;">
-            </div>
-            <div class="swal2-input-group">
-              <label>Link TikTok Shop:</label>
-              <input id="swal-tiktok" class="swal2-input" value="${p.linkTikTok || '#'}" style="margin: 4px 0 10px; width: 100%; box-sizing: border-box;">
-              <label>Preço TikTok Shop (R$):</label>
-              <input id="swal-preco-tiktok" type="number" step="0.01" class="swal2-input" value="${p.precoTikTok || p.preco || 0}" style="margin: 4px 0 10px; width: 100%; box-sizing: border-box;">
-            </div>
-            <div class="swal2-input-group">
-              <label>Categoria:</label>
-              <input id="swal-categoria" class="swal2-input" value="${p.categoria || 'geral'}" style="margin: 4px 0 10px; width: 100%; box-sizing: border-box;">
-            </div>
-          `,
-          showCancelButton: true,
-          confirmButtonText: 'Salvar Alterações',
-          cancelButtonText: 'Cancelar',
-          confirmButtonColor: '#16a34a',
-          cancelButtonColor: '#64748b',
-          focusConfirm: false,
-          preConfirm: () => {
-            return {
-              titulo: document.getElementById('swal-titulo').value,
-              linkShopee: document.getElementById('swal-shopee').value,
-              precoShopee: document.getElementById('swal-preco-shopee').value,
-              linkMercadoLivre: document.getElementById('swal-ml').value,
-              precoMercadoLivre: document.getElementById('swal-preco-ml').value,
-              linkTikTok: document.getElementById('swal-tiktok').value,
-              precoTikTok: document.getElementById('swal-preco-tiktok').value,
-              categoria: document.getElementById('swal-categoria').value
+        secaoProdutos.style.display = 'none';
+        secaoCategorias.style.display = 'block';
+        carregarCategorias();
+      });
+
+      // Toast SweetAlert2
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      });
+
+      // Carregar Lista de Produtos
+      function carregarProdutos() {
+        fetch('/api/produtos')
+          .then(r => r.json())
+          .then(produtos => {
+            const container = document.getElementById('lista-admin-produtos');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!Array.isArray(produtos) || produtos.length === 0) {
+              container.innerHTML = '<p style="color:#888;">Nenhum produto cadastrado.</p>';
+              return;
             }
-          }
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            try {
-              const res = await fetch(`/api/produtos/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(result.value)
+
+            produtos.forEach(p => {
+              const img = p.imagem || p.fotoShopee || p.fotoMercadoLivre || 'https://via.placeholder.com/50';
+              const div = document.createElement('div');
+              div.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9;';
+              div.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <img src="${img}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;">
+                  <div>
+                    <strong style="font-size: 0.9rem; color: #333; display: block;">${p.titulo}</strong>
+                    <span style="font-size: 0.75rem; color: #888;">Categoria: ${p.categoria || 'Geral'}</span>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn-editar-prod" style="background: #2563eb; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer;"><i class="fa-solid fa-pen"></i></button>
+                  <button class="btn-excluir-prod" style="background: #dc2626; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              `;
+
+              // Formulário de Edição com Três Campos de Valor no SweetAlert2
+              div.querySelector('.btn-editar-prod').addEventListener('click', () => {
+                Swal.fire({
+                  title: 'Editar Produto',
+                  html: `
+                    <div class="swal-edit-form">
+                      <label>Nome do Produto</label>
+                      <input id="edit-titulo" value="${p.titulo || ''}" placeholder="Ex: Jaqueta Puffer">
+
+                      <label>Categoria</label>
+                      <input id="edit-categoria" value="${p.categoria || ''}" placeholder="Ex: vestuário">
+
+                      <label>URL da Imagem</label>
+                      <input id="edit-imagem" value="${p.imagem || ''}" placeholder="https://link-da-imagem.com/foto.jpg">
+
+                      <!-- BLOCO SHOPEE -->
+                      <div class="swal-edit-group">
+                        <label style="color:#ee4d2d;">🧡 Shopee</label>
+                        <input id="edit-preco-shopee" type="number" step="0.01" value="${p.precoShopee || p.preco || ''}" placeholder="Valor R$ Shopee">
+                        <input id="edit-shopee" value="${p.linkShopee || ''}" placeholder="Link Afiliado Shopee">
+                      </div>
+
+                      <!-- BLOCO MERCADO LIVRE -->
+                      <div class="swal-edit-group">
+                        <label style="color:#ffe600; text-shadow: 0 0 1px #000;">💛 Mercado Livre</label>
+                        <input id="edit-preco-ml" type="number" step="0.01" value="${p.precoMercadoLivre || ''}" placeholder="Valor R$ Mercado Livre">
+                        <input id="edit-ml" value="${p.linkMercadoLivre || ''}" placeholder="Link Afiliado Mercado Livre">
+                      </div>
+
+                      <!-- BLOCO TIKTOK SHOP -->
+                      <div class="swal-edit-group">
+                        <label style="color:#000;">🖤 TikTok Shop</label>
+                        <input id="edit-preco-tiktok" type="number" step="0.01" value="${p.precoTikTok || ''}" placeholder="Valor R$ TikTok Shop">
+                        <input id="edit-tiktok" value="${p.linkTikTok || ''}" placeholder="Link Afiliado TikTok Shop">
+                      </div>
+                    </div>
+                  `,
+                  showCancelButton: true,
+                  confirmButtonText: 'Salvar Alterações',
+                  cancelButtonText: 'Cancelar',
+                  confirmButtonColor: '#2563eb',
+                  preConfirm: () => {
+                    return {
+                      titulo: document.getElementById('edit-titulo').value,
+                      categoria: document.getElementById('edit-categoria').value,
+                      imagem: document.getElementById('edit-imagem').value,
+                      precoShopee: parseFloat(document.getElementById('edit-preco-shopee').value) || 0,
+                      linkShopee: document.getElementById('edit-shopee').value,
+                      precoMercadoLivre: parseFloat(document.getElementById('edit-preco-ml').value) || 0,
+                      linkMercadoLivre: document.getElementById('edit-ml').value,
+                      precoTikTok: parseFloat(document.getElementById('edit-preco-tiktok').value) || 0,
+                      linkTikTok: document.getElementById('edit-tiktok').value
+                    }
+                  }
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    const dadosAtualizados = { ...p, ...result.value };
+                    fetch(`/api/produtos/${p.id || p._id}`, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(dadosAtualizados)
+                    }).then(r => {
+                      if (r.ok) {
+                        Toast.fire({ icon: 'success', title: 'Produto atualizado com sucesso!' });
+                        carregarProdutos();
+                      } else {
+                        Toast.fire({ icon: 'error', title: 'Erro ao atualizar produto.' });
+                      }
+                    });
+                  }
+                });
               });
 
-              if (res.ok) {
+              // Excluir Produto
+              div.querySelector('.btn-excluir-prod').addEventListener('click', () => {
                 Swal.fire({
-                  icon: 'success',
-                  title: 'Atualizado!',
-                  text: 'O produto foi atualizado com sucesso.',
-                  timer: 1500,
-                  showConfirmButton: false
+                  title: 'Tem certeza?',
+                  text: `Deseja excluir "${p.titulo}"?`,
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: '#dc2626',
+                  cancelButtonColor: '#64748b',
+                  confirmButtonText: 'Sim, excluir!',
+                  cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    fetch(`/api/produtos/${p.id || p._id}`, { method: 'DELETE' })
+                      .then(r => {
+                        if (r.ok) {
+                          Toast.fire({ icon: 'success', title: 'Produto excluído!' });
+                          carregarProdutos();
+                        } else {
+                          Toast.fire({ icon: 'error', title: 'Erro ao excluir produto.' });
+                        }
+                      });
+                  }
                 });
-                carregarProdutosAdmin();
-              } else {
-                Swal.fire('Erro!', 'Não foi possível salvar as alterações.', 'error');
-              }
-            } catch (err) {
-              Swal.fire('Erro!', 'Falha de conexão com o servidor.', 'error');
-            }
-          }
-        });
-      }
+              });
 
-      // Função com Modal SweetAlert2 para Exclusão
-      function excluirProduto(id) {
-        const p = listaProdutos.find(item => Number(item.id) === Number(id));
-        const nomeProduto = p ? p.titulo : 'este produto';
-
-        Swal.fire({
-          title: 'Tem certeza?',
-          text: `Você deseja excluir "${nomeProduto}"?`,
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#dc2626',
-          cancelButtonColor: '#64748b',
-          confirmButtonText: 'Sim, excluir!',
-          cancelButtonText: 'Cancelar'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            fazerExclusao(id);
-          }
-        });
-      }
-
-      // Requisição DELETE para o Backend
-      async function fazerExclusao(id) {
-        try {
-          const res = await fetch(`/api/produtos/${id}`, { method: 'DELETE' });
-          if (res.ok) {
-            Swal.fire({
-              icon: 'success',
-              title: 'Excluído!',
-              text: 'Produto removido com sucesso.',
-              timer: 1500,
-              showConfirmButton: false
+              container.appendChild(div);
             });
-            carregarProdutosAdmin();
-          } else {
-            Swal.fire('Erro!', 'Não foi possível excluir o produto.', 'error');
-          }
-        } catch (err) {
-          Swal.fire('Erro!', 'Falha na requisição de exclusão.', 'error');
-        }
+          });
       }
 
-      // Modal SweetAlert2 para Logout
-      function confirmarLogout(e) {
-        if (e) e.preventDefault();
-        Swal.fire({
-          title: 'Encerrar sessão?',
-          text: 'Você precisará fazer login novamente para acessar o admin.',
-          icon: 'question',
-          showCancelButton: true,
-          confirmButtonColor: '#ef4444',
-          cancelButtonColor: '#64748b',
-          confirmButtonText: 'Sim, sair',
-          cancelButtonText: 'Cancelar'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            window.location.href = '/api/logout';
-          }
-        });
+      // Carregar Lista de Categorias
+      function carregarCategorias() {
+        fetch('/api/categorias')
+          .then(r => r.json())
+          .then(categorias => {
+            const container = document.getElementById('lista-admin-categorias');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!Array.isArray(categorias) || categorias.length === 0) {
+              container.innerHTML = '<p style="color:#888;">Nenhuma categoria cadastrada.</p>';
+              return;
+            }
+
+            categorias.forEach(c => {
+              const catNome = c.nome || c;
+              const catId = c.id || c._id || catNome;
+
+              const div = document.createElement('div');
+              div.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9;';
+              div.innerHTML = `
+                <div>
+                  <strong style="font-size: 0.9rem; color: #333;">${catNome}</strong>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn-excluir-cat" style="background: #dc2626; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              `;
+
+              div.querySelector('.btn-excluir-cat').addEventListener('click', () => {
+                Swal.fire({
+                  title: 'Excluir Categoria?',
+                  text: `Deseja remover a categoria "${catNome}"?`,
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: '#dc2626',
+                  cancelButtonColor: '#64748b',
+                  confirmButtonText: 'Sim, excluir!',
+                  cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    fetch(`/api/categorias/${catId}`, { method: 'DELETE' })
+                      .then(r => {
+                        if (r.ok) {
+                          Toast.fire({ icon: 'success', title: 'Categoria excluída!' });
+                          carregarCategorias();
+                        } else {
+                          Toast.fire({ icon: 'error', title: 'Erro ao excluir categoria.' });
+                        }
+                      });
+                  }
+                });
+              });
+
+              container.appendChild(div);
+            });
+          });
       }
 
-      if (btnLogout) btnLogout.addEventListener('click', confirmarLogout);
-      if (btnLogoutSidebar) btnLogoutSidebar.addEventListener('click', confirmarLogout);
-
-      // Inicializa a listagem
-      carregarProdutosAdmin();
+      carregarProdutos();
     });
   </script>
 </body>

@@ -4,9 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const TelegramBotModule = require('node-telegram-bot-api');
 const TelegramBot = TelegramBotModule.default || TelegramBotModule;
-const cheerio = require('cheerio');
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason) => {
   console.error('⚠️ Rejeição Não Tratada:', reason);
 });
 
@@ -28,6 +27,7 @@ app.use(session({
 app.use(express.static(path.join(__dirname, 'public')));
 
 const FILE_PATH = path.join(__dirname, 'produtos.json');
+const FILE_CATEGORIAS = path.join(__dirname, 'categorias.json');
 const FILE_USUARIOS = path.join(__dirname, 'usuarios.json');
 const UPLOADS_DIR = path.join(__dirname, 'public', 'uploads');
 
@@ -35,13 +35,34 @@ if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
 
-function lerUsuarios() {
+function lerDados(arquivo) {
   try {
-    if (!fs.existsSync(FILE_USUARIOS)) return [];
-    return JSON.parse(fs.readFileSync(FILE_USUARIOS, 'utf-8') || '[]');
+    if (!fs.existsSync(arquivo)) return [];
+    return JSON.parse(fs.readFileSync(arquivo, 'utf-8') || '[]');
   } catch (err) {
     return [];
   }
+}
+
+function salvarDados(arquivo, dados) {
+  try {
+    fs.writeFileSync(arquivo, JSON.stringify(dados, null, 2));
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+function lerUsuarios() {
+  return lerDados(FILE_USUARIOS);
+}
+
+function lerProdutos() {
+  return lerDados(FILE_PATH);
+}
+
+function salvarProdutos(produtos) {
+  return salvarDados(FILE_PATH, produtos);
 }
 
 function autenticar(req, res, next) {
@@ -49,24 +70,6 @@ function autenticar(req, res, next) {
     return next();
   }
   return res.redirect('/login');
-}
-
-function lerProdutos() {
-  try {
-    if (!fs.existsSync(FILE_PATH)) return [];
-    return JSON.parse(fs.readFileSync(FILE_PATH, 'utf-8') || '[]');
-  } catch (err) {
-    return [];
-  }
-}
-
-function salvarProdutos(produtos) {
-  try {
-    fs.writeFileSync(FILE_PATH, JSON.stringify(produtos, null, 2));
-    return true;
-  } catch (err) {
-    return false;
-  }
 }
 
 function extrairLink(texto) {
@@ -95,19 +98,6 @@ async function baixarImagemTelegram(fileId) {
 const TELEGRAM_TOKEN = '8940555284:AAGac5WxNSGApnjF8io2rFGQhvwF_yfdTII'; 
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: false });
 
-async function iniciarBotComSeguranca() {
-  try {
-    await bot.deleteWebHook({ drop_pending_updates: true });
-    console.log('🔄 Fila de mensagens do Telegram limpa.');
-    bot.startPolling();
-    console.log('🤖 Bot do Telegram pronto para uso!');
-  } catch (e) {
-    console.error('Erro ao conectar bot do Telegram:', e);
-  }
-}
-
-iniciarBotComSeguranca();
-
 const usuariosSessao = {};
 
 bot.on('message', async (msg) => {
@@ -115,45 +105,24 @@ bot.on('message', async (msg) => {
   const text = msg.text ? msg.text.trim() : '';
 
   try {
-    if (text.toLowerCase() === '/cancelar') {
+    if (text.toLowerCase() === '/cancelar' || text.toLowerCase() === '/start') {
       delete usuariosSessao[chatId];
-      await bot.sendMessage(chatId, '❌ Cadastro cancelado.');
+      await bot.sendMessage(chatId, '🔄 *Cadastro reiniciado!*\n\nEnvie o **Nome do Produto** para começar:', { parse_mode: 'Markdown' });
       return;
     }
 
     if (!usuariosSessao[chatId]) {
-      const matchUrl = text ? text.match(/https?:\/\/[^\s]+/) : null;
-      const linkInicial = matchUrl ? matchUrl[0] : '#';
-
-      let tituloAuto = '';
-
-      if (linkInicial !== '#') {
-        await bot.sendMessage(chatId, `🔍 *Link recebido!* Analisando página...`, { parse_mode: 'Markdown' });
-        try {
-          const response = await fetch(linkInicial, {
-            headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36' },
-            redirect: 'follow'
-          });
-          const html = await response.text();
-          const $ = cheerio.load(html);
-
-          const ogTitle = $('meta[property="og:title"]').attr('content');
-          const docTitle = $('title').text().trim();
-          tituloAuto = ogTitle ? ogTitle : (docTitle ? docTitle : '');
-        } catch (e) {}
-      }
-
       usuariosSessao[chatId] = {
-        step: 'titulo',
+        step: 'linkShopee',
         dados: {
-          titulo: tituloAuto,
-          linkShopee: linkInicial.includes('shopee') || linkInicial.includes('shp.ee') ? linkInicial : '#',
+          titulo: text,
+          linkShopee: '#',
           precoShopee: 0,
           fotoShopee: '',
-          linkMercadoLivre: linkInicial.includes('mercadolivre') || linkInicial.includes('mercadolibre') || linkInicial.includes('meli') ? linkInicial : '#',
+          linkMercadoLivre: '#',
           precoMercadoLivre: 0,
           fotoMercadoLivre: '',
-          linkTikTok: linkInicial.includes('tiktok') ? linkInicial : '#',
+          linkTikTok: '#',
           precoTikTok: 0,
           fotoTikTok: '',
           imagem: '',
@@ -161,56 +130,38 @@ bot.on('message', async (msg) => {
         }
       };
 
-      if (tituloAuto) {
-        await bot.sendMessage(chatId, `✏️ *Passo 1/10: Nome do Produto*\n\nSugestão encontrada:\n_${tituloAuto}_\n\nDigite o nome ou responda *1* para usar este nome.`, { parse_mode: 'Markdown' });
-      } else {
-        await bot.sendMessage(chatId, `✏️ *Passo 1/10: Nome do Produto*\n\nDigite o nome/título do produto:`, { parse_mode: 'Markdown' });
-      }
+      await bot.sendMessage(chatId, `✅ *Nome:* "${text}"\n\n🟠 *Passo 2/10: Link da SHOPEE*\nCole o link da Shopee (ou digite *0* para pular):`, { parse_mode: 'Markdown' });
       return;
     }
 
     const sessao = usuariosSessao[chatId];
 
-    if (sessao.step === 'titulo') {
-      if (text !== '1' || !sessao.dados.titulo) {
-        sessao.dados.titulo = text;
-      }
-
-      sessao.step = 'linkShopee';
-      let msgShopee = `🟠 *Passo 2/10: Link da SHOPEE*\n\n`;
-      if (sessao.dados.linkShopee !== '#') {
-        msgShopee += `Detectado:\n\`${sessao.dados.linkShopee}\`\n\nResponda *1* para confirmar ou cole outro link (ou *0* para pular).`;
-      } else {
-        msgShopee += `Cole o link da *Shopee* ou digite *0* para pular:`;
-      }
-      await bot.sendMessage(chatId, msgShopee, { parse_mode: 'Markdown' });
-      return;
-    }
-
     if (sessao.step === 'linkShopee') {
-      if (text !== '1') sessao.dados.linkShopee = extrairLink(text);
+      sessao.dados.linkShopee = extrairLink(text);
 
       if (sessao.dados.linkShopee !== '#') {
         sessao.step = 'precoShopee';
-        await bot.sendMessage(chatId, `💰 *Passo 3/10: Preço na SHOPEE*\n\nDigite o valor (Ex: *49.90*):`, { parse_mode: 'Markdown' });
+        await bot.sendMessage(chatId, `💰 *Passo 3/10: Preço na SHOPEE*\nDigite o valor (Ex: *49.90*):`, { parse_mode: 'Markdown' });
         return;
       }
+      
       sessao.step = 'linkML';
+      await bot.sendMessage(chatId, `🟡 *Passo 5/10: Link do MERCADO LIVRE*\nCole o link do Mercado Livre (ou digite *0* para pular):`, { parse_mode: 'Markdown' });
+      return;
     }
 
     if (sessao.step === 'precoShopee') {
       sessao.dados.precoShopee = parseFloat(text.replace(',', '.')) || 0;
       sessao.step = 'fotoShopee';
-      await bot.sendMessage(chatId, `📷 *Passo 4/10: Foto do produto na SHOPEE*\n\nEnvie uma imagem do produto:`, { parse_mode: 'Markdown' });
+      await bot.sendMessage(chatId, `📷 *Passo 4/10: Foto do produto na SHOPEE*\nEnvie uma imagem em anexo:`, { parse_mode: 'Markdown' });
       return;
     }
 
     if (sessao.step === 'fotoShopee') {
       if (!msg.photo || msg.photo.length === 0) {
-        await bot.sendMessage(chatId, '⚠️ Por favor, envie uma foto em anexo.');
+        await bot.sendMessage(chatId, '⚠️ Envie uma foto em anexo para prosseguir.');
         return;
       }
-      await bot.sendMessage(chatId, '⏳ Baixando foto...');
       const photoArray = msg.photo;
       const maiorFoto = photoArray[photoArray.length - 1];
       const localPath = await baixarImagemTelegram(maiorFoto.file_id);
@@ -219,53 +170,36 @@ bot.on('message', async (msg) => {
       if (!sessao.dados.imagem) sessao.dados.imagem = localPath;
 
       sessao.step = 'linkML';
+      await bot.sendMessage(chatId, `🟡 *Passo 5/10: Link do MERCADO LIVRE*\nCole o link do Mercado Livre (ou digite *0* para pular):`, { parse_mode: 'Markdown' });
+      return;
     }
 
     if (sessao.step === 'linkML') {
-      if (text !== '1' && sessao.dados.linkMercadoLivre === '#') {
-        sessao.dados.linkMercadoLivre = extrairLink(text);
-      } else if (text !== '1' && text !== '') {
-        sessao.dados.linkMercadoLivre = extrairLink(text);
-      }
-
-      let msgML = `🟡 *Passo 5/10: Link do MERCADO LIVRE*\n\n`;
-      if (sessao.dados.linkMercadoLivre !== '#') {
-        msgML += `Detectado:\n\`${sessao.dados.linkMercadoLivre}\`\n\nResponda *1* para confirmar ou cole outro link (ou *0* para pular).`;
-        await bot.sendMessage(chatId, msgML, { parse_mode: 'Markdown' });
-        sessao.step = 'confirmarML';
-        return;
-      } else {
-        msgML += `Cole o link do *Mercado Livre* ou digite *0* para pular:`;
-        await bot.sendMessage(chatId, msgML, { parse_mode: 'Markdown' });
-        sessao.step = 'respostaML';
-        return;
-      }
-    }
-
-    if (sessao.step === 'confirmarML' || sessao.step === 'respostaML') {
-      if (text !== '1') sessao.dados.linkMercadoLivre = extrairLink(text);
+      sessao.dados.linkMercadoLivre = extrairLink(text);
 
       if (sessao.dados.linkMercadoLivre !== '#') {
         sessao.step = 'precoML';
-        await bot.sendMessage(chatId, `💰 *Passo 6/10: Preço no MERCADO LIVRE*\n\nDigite o valor (Ex: *59.90*):`, { parse_mode: 'Markdown' });
+        await bot.sendMessage(chatId, `💰 *Passo 6/10: Preço no MERCADO LIVRE*\nDigite o valor (Ex: *59.90*):`, { parse_mode: 'Markdown' });
         return;
       }
+
       sessao.step = 'linkTikTok';
+      await bot.sendMessage(chatId, `⚫ *Passo 8/10: Link do TIKTOK SHOP*\nCole o link do TikTok Shop (ou digite *0* para pular):`, { parse_mode: 'Markdown' });
+      return;
     }
 
     if (sessao.step === 'precoML') {
       sessao.dados.precoMercadoLivre = parseFloat(text.replace(',', '.')) || 0;
       sessao.step = 'fotoML';
-      await bot.sendMessage(chatId, `📷 *Passo 7/10: Foto do produto no MERCADO LIVRE*\n\nEnvie uma imagem do produto:`, { parse_mode: 'Markdown' });
+      await bot.sendMessage(chatId, `📷 *Passo 7/10: Foto do produto no MERCADO LIVRE*\nEnvie uma imagem em anexo:`, { parse_mode: 'Markdown' });
       return;
     }
 
     if (sessao.step === 'fotoML') {
       if (!msg.photo || msg.photo.length === 0) {
-        await bot.sendMessage(chatId, '⚠️ Por favor, envie uma foto em anexo.');
+        await bot.sendMessage(chatId, '⚠️ Envie uma foto em anexo para prosseguir.');
         return;
       }
-      await bot.sendMessage(chatId, '⏳ Baixando foto...');
       const photoArray = msg.photo;
       const maiorFoto = photoArray[photoArray.length - 1];
       const localPath = await baixarImagemTelegram(maiorFoto.file_id);
@@ -274,54 +208,34 @@ bot.on('message', async (msg) => {
       if (!sessao.dados.imagem) sessao.dados.imagem = localPath;
 
       sessao.step = 'linkTikTok';
+      await bot.sendMessage(chatId, `⚫ *Passo 8/10: Link do TIKTOK SHOP*\nCole o link do TikTok Shop (ou digite *0* para pular):`, { parse_mode: 'Markdown' });
+      return;
     }
 
     if (sessao.step === 'linkTikTok') {
-      if (text !== '1' && sessao.dados.linkTikTok === '#') {
-        sessao.dados.linkTikTok = extrairLink(text);
-      } else if (text !== '1' && text !== '') {
-        sessao.dados.linkTikTok = extrairLink(text);
-      }
-
-      let msgTK = `⚫ *Passo 8/10: Link do TIKTOK SHOP*\n\n`;
-      if (sessao.dados.linkTikTok !== '#') {
-        msgTK += `Detectado:\n\`${sessao.dados.linkTikTok}\`\n\nResponda *1* para confirmar ou cole outro link (ou *0* para pular).`;
-        await bot.sendMessage(chatId, msgTK, { parse_mode: 'Markdown' });
-        sessao.step = 'confirmarTikTok';
-        return;
-      } else {
-        msgTK += `Cole o link do *TikTok Shop* ou digite *0* para pular:`;
-        await bot.sendMessage(chatId, msgTK, { parse_mode: 'Markdown' });
-        sessao.step = 'respostaTikTok';
-        return;
-      }
-    }
-
-    if (sessao.step === 'confirmarTikTok' || sessao.step === 'respostaTikTok') {
-      if (text !== '1') sessao.dados.linkTikTok = extrairLink(text);
+      sessao.dados.linkTikTok = extrairLink(text);
 
       if (sessao.dados.linkTikTok !== '#') {
         sessao.step = 'precoTikTok';
-        await bot.sendMessage(chatId, `💰 *Passo 9/10: Preço no TIKTOK SHOP*\n\nDigite o valor (Ex: *39.90*):`, { parse_mode: 'Markdown' });
+        await bot.sendMessage(chatId, `💰 *Passo 9/10: Preço no TIKTOK SHOP*\nDigite o valor (Ex: *39.90*):`, { parse_mode: 'Markdown' });
         return;
       }
-      
+
       return salvarEFinalizar(chatId, sessao.dados);
     }
 
     if (sessao.step === 'precoTikTok') {
       sessao.dados.precoTikTok = parseFloat(text.replace(',', '.')) || 0;
       sessao.step = 'fotoTikTok';
-      await bot.sendMessage(chatId, `📷 *Passo 10/10: Foto do produto no TIKTOK SHOP*\n\nEnvie uma imagem do produto:`, { parse_mode: 'Markdown' });
+      await bot.sendMessage(chatId, `📷 *Passo 10/10: Foto do produto no TIKTOK SHOP*\nEnvie uma imagem em anexo:`, { parse_mode: 'Markdown' });
       return;
     }
 
     if (sessao.step === 'fotoTikTok') {
       if (!msg.photo || msg.photo.length === 0) {
-        await bot.sendMessage(chatId, '⚠️ Por favor, envie uma foto em anexo.');
+        await bot.sendMessage(chatId, '⚠️ Envie uma foto em anexo para prosseguir.');
         return;
       }
-      await bot.sendMessage(chatId, '⏳ Baixando foto...');
       const photoArray = msg.photo;
       const maiorFoto = photoArray[photoArray.length - 1];
       const localPath = await baixarImagemTelegram(maiorFoto.file_id);
@@ -352,17 +266,18 @@ function salvarEFinalizar(chatId, dados) {
                  `🟠 *Shopee:* ${novoProduto.linkShopee !== '#' ? 'R$ ' + (novoProduto.precoShopee || 0).toFixed(2) : 'Não'}\n` +
                  `🟡 *M. Livre:* ${novoProduto.linkMercadoLivre !== '#' ? 'R$ ' + (novoProduto.precoMercadoLivre || 0).toFixed(2) : 'Não'}\n` +
                  `⚫ *TikTok:* ${novoProduto.linkTikTok !== '#' ? 'R$ ' + (novoProduto.precoTikTok || 0).toFixed(2) : 'Não'}\n\n` +
-                 `Acesse sua vitrine: http://localhost:3000`;
+                 `Acesse sua vitrine para ver o resultado!`;
 
   bot.sendMessage(chatId, resumo, { parse_mode: 'Markdown' });
   delete usuariosSessao[chatId];
 }
 
-// ROTAS HTTP
+// ROTAS HTTP DE PÁGINAS
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
+app.get('/admin', autenticar, (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
-app.get('/checkout', (req, res) => res.sendFile(path.join(__dirname, 'public', 'checkout.html')));
-
+// ROTAS DE API DA AUTENTICAÇÃO
 app.post('/api/login', (req, res) => {
   const { usuario, senha } = req.body;
   const usuarios = lerUsuarios();
@@ -385,11 +300,21 @@ app.get('/api/logout', (req, res) => {
   res.redirect('/login');
 });
 
-app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
-
-app.get('/admin', autenticar, (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
-
+// ROTAS DE API DE PRODUTOS
 app.get('/api/produtos', (req, res) => res.json(lerProdutos()));
+
+// Rota adicionada para busca individual por ID (Necessária para a tela de detalhes)
+app.get('/api/produtos/:id', (req, res) => {
+  const produtos = lerProdutos();
+  const idBusca = req.params.id;
+  const produto = produtos.find((p, index) => p.id == idBusca || p._id == idBusca || index == idBusca);
+
+  if (produto) {
+    res.json(produto);
+  } else {
+    res.status(404).json({ success: false, message: 'Produto não encontrado' });
+  }
+});
 
 app.post('/api/produtos', autenticar, (req, res) => {
   const produtos = lerProdutos();
@@ -427,5 +352,32 @@ app.delete('/api/produtos/:id', autenticar, (req, res) => {
   res.json({ success: true });
 });
 
+// ROTAS DE API DE CATEGORIAS
+app.get('/api/categorias', (req, res) => res.json(lerDados(FILE_CATEGORIAS)));
+
+app.post('/api/categorias', autenticar, (req, res) => {
+  const categorias = lerDados(FILE_CATEGORIAS);
+  const novaCategoria = { id: Date.now(), ...req.body };
+  categorias.unshift(novaCategoria);
+  salvarDados(FILE_CATEGORIAS, categorias);
+  res.status(201).json({ success: true, categoria: novaCategoria });
+});
+
+app.delete('/api/categorias/:id', autenticar, (req, res) => {
+  let categorias = lerDados(FILE_CATEGORIAS);
+  categorias = categorias.filter(c => c.id !== parseInt(req.params.id));
+  salvarDados(FILE_CATEGORIAS, categorias);
+  res.json({ success: true });
+});
+
 const PORT = 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
+app.listen(PORT, async () => {
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  try {
+    await bot.deleteWebHook({ drop_pending_updates: true });
+    await bot.startPolling();
+    console.log('🤖 Bot do Telegram ativo!');
+  } catch (err) {
+    console.error('⚠️ Erro ao iniciar Polling:', err.message);
+  }
+});
